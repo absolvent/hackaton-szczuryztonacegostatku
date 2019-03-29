@@ -89,7 +89,6 @@ io.on('connection', function(socket){
   socket.on('global chat message', msg => {
     const user = getUser(socket.id);
     if (user) {
-      console.log(1, msg);
       io.emit('global chat message', {
         username: user.name,
         msg,
@@ -101,7 +100,6 @@ io.on('connection', function(socket){
     const user = getUser(socket.id);
     const roomId = Object.keys(socket.rooms)[0];
     if (user) {
-      console.log(2);
       io.to(roomId).emit('room chat message', {
         username: user.name,
         msg,

@@ -13,7 +13,6 @@ const Chat = ({ title, eventName }) => {
   }
 
   const receiveMessage = ({username, msg}) => {
-    console.log(msg, '11111')
     setMsgList(msgList.concat([{
       username,
       msg,
@@ -21,7 +20,6 @@ const Chat = ({ title, eventName }) => {
   }
 
   useEffect(() => {
-    console.log(eventName);
     socket.on(eventName, receiveMessage);
     return () => {
       socket.removeListener(eventName, receiveMessage);
