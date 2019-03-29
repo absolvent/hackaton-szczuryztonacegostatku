@@ -9,7 +9,7 @@
     table-layout: fixed;
     height: 500px;
     width: 500px;
-    border: none;
+    border: 1px;
 }
 
 .water td {

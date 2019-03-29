@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styles from './Wrapper.module.css';
-import Element from './Element';
+import Element, { STATUS_HIT } from './Element';
 import cloneDeep from 'lodash/cloneDeep';
 
 const ROWS = 10;
@@ -41,6 +41,16 @@ const Map = (props) => {
     }
   );
   const [canShoot, setCanShoot] = useState(true);
+  const [playerData, setPlayerData] = useState(
+    {
+      [players[0].id] : {
+        score: 0,
+      },
+      [players[1].id] : {
+        score: 0,
+      }
+    }
+  );
 
   const addShip = (isChecked, row, element) => {
     let tempShips = cloneDeep(ships);
@@ -55,6 +65,14 @@ const Map = (props) => {
     let tempShoots = cloneDeep(shoots);
     tempShoots[currentPlayer.id][row][element] = status;
     setShoots(tempShoots);
+
+    // update score
+    if(status === STATUS_HIT) {
+      let tempScore = cloneDeep(playerData);
+      tempScore[currentPlayer.id].score += 1;
+      setPlayerData(tempScore);
+    }
+
     setCanShoot(false);
   };
 
@@ -107,6 +125,10 @@ const Map = (props) => {
     setCanShoot(true);
   };
 
+  const getWinner = () => {
+    // TODO get player by score points
+  };
+
   const startGame = () => {
     switchPlayer();
     setDraftMode(false);
@@ -115,7 +137,7 @@ const Map = (props) => {
   return (
     <div>
       <div className={styles.gameStatus}>
-        Witaj {currentPlayer.name}<br/>
+        Witaj {currentPlayer.name} {!draftMode && (`(zdobyte punkty: ${playerData[currentPlayer.id].score})`)}<br/>
          {draftMode ? 'Proszę rozłożyć statki na mapie' : 'Gra została rozpoczęta, wybierz pole i kliknij dalej'}
       </div>
       {draftMode && (
@@ -133,7 +155,7 @@ const Map = (props) => {
         </div>
       )}
       <div className={styles.map}>
-        <table className={styles.water} border="1">
+        <table className={styles.water}>
           {renderRows()}
         </table>
       </div>

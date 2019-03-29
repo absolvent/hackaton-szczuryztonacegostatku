@@ -3,23 +3,19 @@ import styles from './Wrapper.module.css';
 
 const STATUS_WATER = 0;
 const STATUS_MISS = 1;
-const STATUS_HIT = 2;
+export const STATUS_HIT = 2;
 
 const Element = (props) => {
-  //const [isChecked, setIsChecked] = useState(false);
-  const [isBoat, setIsBoat] = useState(false);
-
   const elementClickHandler = () => {
     if (props.isShoot) {
       return;
     }
     let status = false;
     if(props.draftMode) {
-      // tryb draftu
+      // draft mode
       status = !props.isChecked;
     } else {
-      // tryb gry
-        // setStatus(props.isChecked ? STATUS_HIT : STATUS_MISS);
+      // game mode
       status = props.isChecked ? STATUS_HIT : STATUS_MISS;
     }
 

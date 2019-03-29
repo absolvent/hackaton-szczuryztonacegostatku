@@ -14,7 +14,7 @@ const players = [
   }
 ];
 
-// TODO zabezpieczenie aby gracz przed rozpoczęciem gry zaznaczył kilka swoich statków
+// TODO zabezpieczenie aby gracz przed rozpoczęciem gry zaznaczył kilka swoich statków (okrelić liczbę)
 // TODO dodać efekt na klikniecie w pole mapy (trafienie statku, puste pole)
 const Ships = () => {
   return (
