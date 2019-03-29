@@ -3,13 +3,15 @@ import Chat from './Chat';
 import UserList from './UserList';
 import socket from './lib/socket';
 
+const getReadyUsersIdList = room =>
+  room ? room.players.filter(({ ready }) => !!ready).map(({id}) => id) : undefined;
+
 const Room = ({ match, history }) => {
   const [room, setRoom] = useState(null);
 
   const roomId = match.params.id;
 
   const receiveRoom = room => {
-    console.log(room);
     if (!room) {
       return history.push('/');
     }
@@ -18,6 +20,7 @@ const Room = ({ match, history }) => {
 
   useEffect(() => {
     socket.on('room', receiveRoom);
+    socket.on('room not exists', () => history.push('/'))
     socket.emit('join room', roomId);
     return () => {
       socket.removeListener('room', receiveRoom);
@@ -31,6 +34,7 @@ const Room = ({ match, history }) => {
         <UserList
           title="Uzytkownicy w pokoju"
           eventName="room users"
+          readyPlayersIdList={getReadyUsersIdList(room)}
         />
         <Chat
           title={`Chat pokoju: ${room.name}`}

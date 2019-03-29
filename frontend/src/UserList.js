@@ -1,7 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import socket from './lib/socket';
 
-const UserList = ({ title, eventName }) => {
+const readyPlaerBadge = (userId, readyPlayersIdList) => {
+  if (!readyPlayersIdList && (typeof readyPlayersIdList == 'undefined' || typeof readyPlayersIdList.length == 'undefined')) {
+    return null;
+  }
+
+  return readyPlayersIdList.includes(userId) ? ' GOTOWY' : ' CZEKA';
+}
+
+const UserList = ({ title, eventName, readyPlayersIdList }) => {
   const [userList, setUserList] = useState([]);
 
   const onUsersChange = users => {
@@ -24,12 +32,16 @@ const UserList = ({ title, eventName }) => {
           <li
             key={id}
           >
-            {name}
+            {name} {readyPlaerBadge(id, readyPlayersIdList)}
           </li>
         )}
       </ul>
     </div>
   );
+};
+
+UserList.defaultProp = {
+  readyPlayersIdList: false,
 };
 
 export default UserList;

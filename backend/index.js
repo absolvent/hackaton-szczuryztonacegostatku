@@ -162,11 +162,17 @@ io.on('connection', function(socket){
   });
 
   socket.on('join room', roomId => {
-    const result = joinRoom(roomId);
+    const { result } = joinRoom(roomId);
+    console.log(1);
     if (result) {
-      socket.emit('room', getRoom(roomId));
+      console.log(2, result);
+      io.to(roomId).emit('room', getRoom(roomId));
       io.to(roomId).emit('room users', getRoomUsers(roomId));
+    } else {
+      console.log(3);
+      socket.emit('room not exists');
     }
+    console.log(4);
     return result;
   })
 
