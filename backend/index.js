@@ -6,6 +6,9 @@ let rooms = [];
 
 let users = [];
 
+const getUser = socketId => 
+  users.find(({ id }) => id ===`user-${socketId}`);
+
 io.on('connection', function(socket){
   socket.on('disconnect', function(){
     users = users.filter(({ id }) => id !== `user-${socket.id}`);
@@ -48,7 +51,13 @@ io.on('connection', function(socket){
   })
 
   socket.on('global chat message', msg => {
-    io.emit('global chat message', msg);
+    const user = getUser(socket.id);
+    if (user) {
+      io.emit('global chat message', {
+        username: user.name,
+        msg,
+      });
+    }
   })
 
   socket.on('room chat message', (id, msg) => {
