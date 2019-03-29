@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styles from './Wrapper.module.css';
 import Element from './Element';
+import cloneDeep from 'lodash/cloneDeep';
 
 const ROWS = 10;
 const ELEMENTS = 10;
@@ -11,12 +12,7 @@ const Map = (props) => {
     return 'brak graczy w pokoju';
   }
 
-  const [draftMode, setDraftMode] = useState(true);
-  const [currentPlayer, setCurrentPlayer] = useState(players[0]);
-  const [readyToStart, setReadyToStart] = useState(false);
-
-  const emptyMap = [];
-  const ships = [];
+  let tempEmptyMap = [];
 
   for (let i = 0; i < ROWS; i++) {
     let elements = [];
@@ -24,23 +20,57 @@ const Map = (props) => {
       elements.push(false);
     }
 
-    emptyMap.push(elements);
+    tempEmptyMap.push(elements);
   }
 
-  players.map(player => (
-    ships[player.name] = emptyMap
-  ));
+  const [draftMode, setDraftMode] = useState(true);
+  const [currentPlayer, setCurrentPlayer] = useState(players[0]);
+  const [readyToStart, setReadyToStart] = useState(false);
+  const [emptyMap, setEmptyMap] = useState(tempEmptyMap);
+  const [ships, setShips] = useState(
+    {
+      [players[0].name] : cloneDeep(emptyMap),
+      [players[1].name] : cloneDeep(emptyMap)
+    }
+  );
+  const [shoots, setShoots] = useState(
+    {
+      [players[0].name] : cloneDeep(emptyMap),
+      [players[1].name] : cloneDeep(emptyMap)
+    }
+  );
+  const [canShoot, setCanShoot] = useState(true);
+
+    //ships[player.name] = cloneDeep(emptyMap);
 
   const addShip = (isChecked, row, element) => {
-    console.log(ships[currentPlayer.name]);
-    ships[currentPlayer.name][row][element] = isChecked;
+    let tempShips = cloneDeep(ships);
+    tempShips[currentPlayer.name][row][element] = isChecked;
+    setShips(tempShips);
+
+  };
+
+  const shoot = (status, row, element) => {
+    let tempShoots = cloneDeep(shoots);
+    tempShoots[currentPlayer.name][row][element] = status;
+    setShoots(tempShoots);
+    console.log(currentPlayer.name);
+    setCanShoot(false);
   };
 
   const renderElements = (row) => {
     const elements = [];
 
     for (let i = 0; i < ELEMENTS; i++) {
-      elements.push(<Element abc={addShip} row={row} element={i} draftMode={draftMode}/>)
+      elements.push(
+        <Element
+          abc={draftMode ? addShip : shoot}
+          row={row}
+          element={i}
+          draftMode={draftMode}
+          isChecked={ships[currentPlayer.name][row][i]}
+          isShoot={shoots[currentPlayer.name][row][i]}
+        />)
     }
 
     return elements;
@@ -64,6 +94,14 @@ const Map = (props) => {
     }
   };
 
+  const switchPlayer = () => {
+    // console.log(currentPlayer !== players[1] ? 0 : 1);
+    setCurrentPlayer(players[
+      currentPlayer === players[1] ? 0 : 1
+    ]);
+    setCanShoot(true);
+  };
+
   const startGame = () => {
     setDraftMode(false);
   };
@@ -81,6 +119,11 @@ const Map = (props) => {
           ) : (
             <button onClick={nextPlayer}>Kolejny gracz ({players[1].name})</button>
           )}
+        </div>
+      )}
+      {!draftMode && !canShoot && (
+        <div className={styles.saveButton}>
+          <button onClick={switchPlayer}>Nastepny</button>
         </div>
       )}
       <div className={styles.map}>
