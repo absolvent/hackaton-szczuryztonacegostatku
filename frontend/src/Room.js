@@ -9,6 +9,7 @@ const Room = ({ match, history }) => {
   const roomId = match.params.id;
 
   const receiveRoom = room => {
+    console.log(room);
     if (!room) {
       return history.push('/');
     }
