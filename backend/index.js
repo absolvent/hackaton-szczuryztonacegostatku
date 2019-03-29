@@ -9,14 +9,43 @@ let users = [];
 const getUser = socketId => 
   users.find(({ id }) => id ===`user-${socketId}`);
 
+const getRoom = roomId =>
+  rooms.find(({ id }) => id === roomId);
+
 io.on('connection', function(socket){
+
+  const getRoomId = () => {
+    const rooms = Object.keys(socket.rooms);
+    return rooms && rooms.length > 0 ? rooms[0] : null;
+  }
+
+  const getRoomUsers = roomId => {
+    const socketIdList = Object.keys(io.sockets.adapter.rooms[roomId].sockets)
+      .map(id => `user-${id}`);
+    return users.filter(({ id }) => socketIdList.includes(id));
+  }
+
   socket.on('disconnect', function(){
     users = users.filter(({ id }) => id !== `user-${socket.id}`);
+    rooms = rooms.filter(({ id }) => id !== `room-${socket.id}`);
     io.emit('users', users);
   });
 
   socket.on('get users', () => {
-    io.emit('users', users);
+    socket.emit('users', users);
+  });
+
+  socket.on('get room users', () => {
+    const roomId = getRoomId();
+    io.to(roomId).emit('room users', getRoomUsers(roomId));
+  });
+
+  socket.on('get rooms', () => {
+    socket.emit('rooms', rooms);
+  });
+
+  socket.on('get room', roomId => {
+    socket.emit('room', getRoom(roomId));
   })
 
   socket.on('set username', name => {
@@ -43,13 +72,24 @@ io.on('connection', function(socket){
     }
   });
 
+  socket.on('leave all rooms', () => {
+    const roomId = getRoomId();
+    if (roomId) {
+      socket.leave();
+    }
+  });
+
   socket.on('join room', roomId => {
+    socket.leaveAll();
     socket.join(roomId);
+    socket.emit('room', getRoom(roomId));
+    io.to(roomId).emit('room users', getRoomUsers(roomId));
   })
 
   socket.on('global chat message', msg => {
     const user = getUser(socket.id);
     if (user) {
+      console.log(1, msg);
       io.emit('global chat message', {
         username: user.name,
         msg,
@@ -57,10 +97,12 @@ io.on('connection', function(socket){
     }
   })
 
-  socket.on('room chat message', (id, msg) => {
+  socket.on('room chat message', msg => {
     const user = getUser(socket.id);
+    const roomId = Object.keys(socket.rooms)[0];
     if (user) {
-      io.to(id).emit('room chat message', {
+      console.log(2);
+      io.to(roomId).emit('room chat message', {
         username: user.name,
         msg,
       });

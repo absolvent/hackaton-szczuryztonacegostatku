@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import UsernameForm from './UsernameForm';
 import UserList from './UserList';
-import GlobalChat from './GlobalChat';
+import Chat from './Chat';
 import RoomList from './RoomList';
 import socket from './lib/socket';
 
@@ -12,6 +12,10 @@ const Dashboard = () => {
     setUserName(name);
     socket.emit('set username', name);
   }
+
+  useEffect(() => {
+    socket.emit('leave all rooms');
+  }, []);
 
   return (
     <div>
@@ -28,8 +32,14 @@ const Dashboard = () => {
       </p>
       {userName &&
         <div>
-          <UserList />
-          <GlobalChat />
+          <UserList
+            title="Zalogowani"
+            eventName="users"
+          />
+          <Chat
+            eventName="global chat message"
+            title="Chat globalny"
+          />
           <RoomList />
         </div>
       }

@@ -18,6 +18,7 @@ const RoomList = () => {
 
   useEffect(() => {
     socket.on('rooms', receiveRoomList);
+    socket.emit('get rooms');
     return () => {
       socket.removeListener('rooms', receiveRoomList);
     }

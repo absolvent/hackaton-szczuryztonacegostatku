@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import socket from './lib/socket';
 
-const GlobalChat = () => {
+const Chat = ({ title, eventName }) => {
   const [msg, setMsg] = useState('');
   const [msgList, setMsgList] = useState([]);
 
   const submitMessage = e => {
     e.preventDefault();
-    socket.emit('global chat message', msg);
+    socket.emit(eventName, msg);
     setMsg('');
   }
 
   const receiveMessage = ({username, msg}) => {
+    console.log(msg, '11111')
     setMsgList(msgList.concat([{
       username,
       msg,
@@ -19,16 +21,17 @@ const GlobalChat = () => {
   }
 
   useEffect(() => {
-    socket.on('global chat message', receiveMessage);
+    console.log(eventName);
+    socket.on(eventName, receiveMessage);
     return () => {
-      socket.removeListener('global chat message', receiveMessage);
+      socket.removeListener(eventName, receiveMessage);
     }
-  }, [msgList]);
+  }, [msgList, title, eventName]);
 
   return (
     <div>
       <h2>
-        Globalny chat
+        {title}
       </h2>
       <p>
         <ul>
@@ -60,4 +63,9 @@ const GlobalChat = () => {
   );
 }
 
-export default GlobalChat;
+Chat.propTypes = {
+  eventName: PropTypes.string.isRequired,
+  title: PropTypes.string.isRequired,
+};
+
+export default Chat;

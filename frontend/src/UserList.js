@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import socket from './lib/socket';
 
-const UserList = () => {
+const UserList = ({ title, eventName }) => {
   const [userList, setUserList] = useState([]);
 
   const onUsersChange = users => {
@@ -9,16 +9,16 @@ const UserList = () => {
   }
 
   useEffect(() => {
-    socket.on('users', onUsersChange);
-    socket.emit('get users');
+    socket.on(eventName, onUsersChange);
+    socket.emit(`get ${eventName}`);
     return () => {
-      socket.removeListener('users', onUsersChange);
+      socket.removeListener(eventName, onUsersChange);
     };
   }, []);
 
   return (
     <div>
-      <h2>Lista userów</h2>
+      <h2>{title}</h2>
       <ul>
         {userList.map(({id, name}) => 
           <li
