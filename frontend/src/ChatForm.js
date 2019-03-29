@@ -5,9 +5,18 @@ const ChatForm = () => {
   const [msg, setMsg] = useState('');
   const [msgList, setMsgList] = useState([]);
 
-  socket.on('chat message', (msg) => {
+  const getMsgList = ({ msg, id }) => {
     setMsgList(msgList.concat([msg]));
-  });
+    console.log(id);
+  };
+
+  useEffect(() => {
+    socket.on('chat message', getMsgList);
+
+    return () => {
+      socket.removeListener('chat message', getMsgList);
+    }
+  }, [msgList])
 
   return  (
     <div>

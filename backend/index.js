@@ -2,15 +2,57 @@ const app = require('express')();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 
+let rooms = [];
+
+let users = [];
+
 io.on('connection', function(socket){
-  // console.log('a user connected');
-  // socket.on('disconnect', function(){
-  //   console.log('user disconnected');
+  socket.on('disconnect', function(){
+    users = users.filter(({ id }) => id !== `user-${socket.id}`);
+    io.emit('users', users);
+  });
+
+  // socket.on('chat message', function(msg){
+  //   io.emit('chat message', {
+  //     msg,
+  //     id: socket.id,
+  //   });
   // });
 
-  socket.on('chat message', function(msg){
-    console.log('message: ' + msg);
-    socket.emit('chat message', msg);
+  socket.on('get users', () => {
+    io.emit('users', users);
+  })
+
+  socket.on('set username', name => {
+    userData = {
+      id: `user-${socket.id}`,
+      name,
+    };
+
+    users.push(userData);
+    io.emit('users', users);
+  })
+
+  socket.on('create room', name => {
+    const roomData = {
+      id: `room-${socket.id}`,
+      name,
+    };
+    rooms.push(roomData);
+    socket.join(roomData.id);
+    io.emit('rooms', rooms)
+  });
+
+  socket.on('join room', roomId => {
+    socket.join(roomId);
+  })
+
+  socket.on('global chat message', msg => {
+    io.emit('global chat message', msg);
+  })
+
+  socket.on('room chat message', (id, msg) => {
+    io.to(id).emit(msg);
   });
 });
 
