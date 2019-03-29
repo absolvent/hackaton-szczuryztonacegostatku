@@ -5,15 +5,17 @@ const players = [
   {
     id: 1,
     name: 'Marcin',
-    isReady: false
+    score: 0
   },
   {
     id: 2,
     name: 'Mateusz',
-    isReady: false
+    score: 0
   }
 ];
 
+// TODO zabezpieczenie aby gracz przed rozpoczęciem gry zaznaczył kilka swoich statków
+// TODO dodać efekt na klikniecie w pole mapy (trafienie statku, puste pole)
 const Ships = () => {
   return (
     <div>

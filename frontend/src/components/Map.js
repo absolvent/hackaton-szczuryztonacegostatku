@@ -25,42 +25,41 @@ const Map = (props) => {
 
   const [draftMode, setDraftMode] = useState(true);
   const [currentPlayer, setCurrentPlayer] = useState(players[0]);
+  const [enemyPlayer, setEnemyPlayer] = useState(null);
   const [readyToStart, setReadyToStart] = useState(false);
   const [emptyMap, setEmptyMap] = useState(tempEmptyMap);
   const [ships, setShips] = useState(
     {
-      [players[0].name] : cloneDeep(emptyMap),
-      [players[1].name] : cloneDeep(emptyMap)
+      [players[0].id] : cloneDeep(emptyMap),
+      [players[1].id] : cloneDeep(emptyMap)
     }
   );
   const [shoots, setShoots] = useState(
     {
-      [players[0].name] : cloneDeep(emptyMap),
-      [players[1].name] : cloneDeep(emptyMap)
+      [players[0].id] : cloneDeep(emptyMap),
+      [players[1].id] : cloneDeep(emptyMap)
     }
   );
   const [canShoot, setCanShoot] = useState(true);
 
-    //ships[player.name] = cloneDeep(emptyMap);
-
   const addShip = (isChecked, row, element) => {
     let tempShips = cloneDeep(ships);
-    tempShips[currentPlayer.name][row][element] = isChecked;
+    tempShips[currentPlayer.id][row][element] = isChecked;
     setShips(tempShips);
-
   };
 
   const shoot = (status, row, element) => {
+    if(!canShoot) {
+      return false;
+    }
     let tempShoots = cloneDeep(shoots);
-    tempShoots[currentPlayer.name][row][element] = status;
+    tempShoots[currentPlayer.id][row][element] = status;
     setShoots(tempShoots);
-    console.log(currentPlayer.name);
     setCanShoot(false);
   };
 
   const renderElements = (row) => {
     const elements = [];
-
     for (let i = 0; i < ELEMENTS; i++) {
       elements.push(
         <Element
@@ -68,8 +67,8 @@ const Map = (props) => {
           row={row}
           element={i}
           draftMode={draftMode}
-          isChecked={ships[currentPlayer.name][row][i]}
-          isShoot={shoots[currentPlayer.name][row][i]}
+          isChecked={ships[draftMode ? currentPlayer.id : enemyPlayer.id][row][i]}
+          isShoot={shoots[currentPlayer.id][row][i]}
         />)
     }
 
@@ -95,14 +94,21 @@ const Map = (props) => {
   };
 
   const switchPlayer = () => {
-    // console.log(currentPlayer !== players[1] ? 0 : 1);
+    const newCurrentPlayerIndex = currentPlayer === players[1] ? 0 : 1;
+    const newEnemyPlayerIndex = newCurrentPlayerIndex === 0 ? 1 : 0;
+
     setCurrentPlayer(players[
-      currentPlayer === players[1] ? 0 : 1
+      newCurrentPlayerIndex
     ]);
+    setEnemyPlayer(players[
+      newEnemyPlayerIndex
+    ]);
+
     setCanShoot(true);
   };
 
   const startGame = () => {
+    switchPlayer();
     setDraftMode(false);
   };
 
@@ -110,7 +116,7 @@ const Map = (props) => {
     <div>
       <div className={styles.gameStatus}>
         Witaj {currentPlayer.name}<br/>
-         {draftMode ? 'Proszę rozłożyć statki na mapie' : 'Gra rozpoczęta'}
+         {draftMode ? 'Proszę rozłożyć statki na mapie' : 'Gra została rozpoczęta, wybierz pole i kliknij dalej'}
       </div>
       {draftMode && (
         <div className={styles.saveButton}>
@@ -123,7 +129,7 @@ const Map = (props) => {
       )}
       {!draftMode && !canShoot && (
         <div className={styles.saveButton}>
-          <button onClick={switchPlayer}>Nastepny</button>
+          <button onClick={switchPlayer}>Ruch kolejnego gracza</button>
         </div>
       )}
       <div className={styles.map}>

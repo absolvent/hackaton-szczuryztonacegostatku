@@ -29,7 +29,7 @@ const Element = (props) => {
   const renderStatus = () => {
     if(props.draftMode) {
       if(props.isChecked) {
-        return styles.hit;
+        return styles.checked;
       }
     } else {
       if(props.isShoot && !props.isChecked) {
