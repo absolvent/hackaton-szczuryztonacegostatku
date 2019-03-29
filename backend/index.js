@@ -14,7 +14,7 @@ io.on('connection', function(socket){
     users = users.filter(({ id }) => id !== `user-${socket.id}`);
     io.emit('users', users);
   });
-  
+
   socket.on('get users', () => {
     io.emit('users', users);
   })

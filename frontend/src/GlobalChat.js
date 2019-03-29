@@ -5,7 +5,8 @@ const GlobalChat = () => {
   const [msg, setMsg] = useState('');
   const [msgList, setMsgList] = useState([]);
 
-  const submitMessage = () => {
+  const submitMessage = e => {
+    e.preventDefault();
     socket.emit('global chat message', msg);
     setMsg('');
   }
@@ -39,19 +40,21 @@ const GlobalChat = () => {
         </ul>
       </p>
       <p>
-        <input
-          type="text"
-          placeholder="Twoja wiadomość"
-          onChange={({ target }) => {
-            setMsg(target.value);
-          }}
-          value={msg}
-        />
-        <button
-          onClick={submitMessage}
+        <form
+          onSubmit={submitMessage}
         >
-          Wyślij
-        </button>
+          <input
+            type="text"
+            placeholder="Twoja wiadomość"
+            onChange={({ target }) => {
+              setMsg(target.value);
+            }}
+            value={msg}
+          />
+          <button>
+            Wyślij
+          </button>
+        </form>
       </p>
     </div>
   );

@@ -5,24 +5,24 @@ const UsernameForm = ({ onSubmit }) => {
   const [name, setName] = useState(null);
 
   return (
-    <div>
+    <form
+      onSubmit={() => {
+        onSubmit(name);
+      }}
+    >
       <input
         placeholder="Name"
         value={name}
         onChange={({ target }) => {
           setName(target.value);
         }}
+        required
       />
       <button
-        onClick={() => {
-          if (name) {
-            onSubmit(name);
-          }
-        }}
       >
         Wyślij
       </button>
-    </div>
+    </form>
   );
 }
 
