@@ -14,14 +14,7 @@ io.on('connection', function(socket){
     users = users.filter(({ id }) => id !== `user-${socket.id}`);
     io.emit('users', users);
   });
-
-  // socket.on('chat message', function(msg){
-  //   io.emit('chat message', {
-  //     msg,
-  //     id: socket.id,
-  //   });
-  // });
-
+  
   socket.on('get users', () => {
     io.emit('users', users);
   })
@@ -37,13 +30,17 @@ io.on('connection', function(socket){
   })
 
   socket.on('create room', name => {
-    const roomData = {
-      id: `room-${socket.id}`,
-      name,
-    };
-    rooms.push(roomData);
-    socket.join(roomData.id);
-    io.emit('rooms', rooms)
+    const user = getUser(socket.id);
+    if (user) {
+      const roomData = {
+        id: `room-${socket.id}`,
+        creatorName: user.name,
+        name,
+      };
+      rooms.push(roomData);
+      socket.join(roomData.id);
+      io.emit('rooms', rooms);
+    }
   });
 
   socket.on('join room', roomId => {
@@ -61,7 +58,13 @@ io.on('connection', function(socket){
   })
 
   socket.on('room chat message', (id, msg) => {
-    io.to(id).emit(msg);
+    const user = getUser(socket.id);
+    if (user) {
+      io.to(id).emit('room chat message', {
+        username: user.name,
+        msg,
+      });
+    }
   });
 });
 

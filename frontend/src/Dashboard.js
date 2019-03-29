@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import UsernameForm from './UsernameForm';
 import UserList from './UserList';
 import GlobalChat from './GlobalChat';
+import RoomList from './RoomList';
 import socket from './lib/socket';
 
 const Dashboard = () => {
@@ -29,6 +30,7 @@ const Dashboard = () => {
         <div>
           <UserList />
           <GlobalChat />
+          <RoomList />
         </div>
       }
     </div>
