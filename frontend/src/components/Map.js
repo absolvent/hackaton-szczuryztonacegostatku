@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import styles from './Wrapper.module.css';
 import Element, { STATUS_HIT } from './Element';
 import cloneDeep from 'lodash/cloneDeep';
+import socket from '../lib/socket';
 
 const ROWS = 10;
 const ELEMENTS = 10;
 
-const Map = (props) => {
-  const players = props.players;
-  if(!props.players) {
+const Map = ({ players }) => {
+  // const players = props.players;
+  if(!players || players.length < 2) {
     return 'brak graczy w pokoju';
   }
 
@@ -28,12 +29,12 @@ const Map = (props) => {
   const [enemyPlayer, setEnemyPlayer] = useState(null);
   const [readyToStart, setReadyToStart] = useState(false);
   const [emptyMap, setEmptyMap] = useState(tempEmptyMap);
-  const [ships, setShips] = useState(
-    {
-      [players[0].id] : cloneDeep(emptyMap),
-      [players[1].id] : cloneDeep(emptyMap)
-    }
-  );
+  const [ships, setShips] = useState(null);
+  //   {
+  //     [players[0].id] : cloneDeep(emptyMap),
+  //     [players[1].id] : cloneDeep(emptyMap)
+  //   }
+  // );
   const [shoots, setShoots] = useState(
     {
       [players[0].id] : cloneDeep(emptyMap),
@@ -53,9 +54,10 @@ const Map = (props) => {
   );
 
   const addShip = (isChecked, row, element) => {
-    let tempShips = cloneDeep(ships);
-    tempShips[currentPlayer.id][row][element] = isChecked;
-    setShips(tempShips);
+    // let tempShips = cloneDeep(ships);
+    // tempShips[currentPlayer.id][row][element] = isChecked;
+    // setShips(tempShips);
+    socket.emit('add ship', ({ isChecked, row, element }));
   };
 
   const shoot = (status, row, element) => {
@@ -77,6 +79,9 @@ const Map = (props) => {
   };
 
   const renderElements = (row) => {
+    if (!ships) {
+      return;
+    }
     const elements = [];
     for (let i = 0; i < ELEMENTS; i++) {
       elements.push(
@@ -85,7 +90,7 @@ const Map = (props) => {
           row={row}
           element={i}
           draftMode={draftMode}
-          isChecked={ships[draftMode ? currentPlayer.id : enemyPlayer.id][row][i]}
+          isChecked={ships[row][i]}
           isShoot={shoots[currentPlayer.id][row][i]}
         />)
     }

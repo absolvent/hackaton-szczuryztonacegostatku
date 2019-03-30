@@ -88,12 +88,9 @@ io.on('connection', function(socket){
     if (room && room.players && room.players.length < 2) {
       room.players.push(emptyPlayerData(`user-${socket.id}`));
       const index = rooms.findIndex(({ id }) => id === roomId);
-      console.log(roomId, room, index);
       if (rooms[index]) {
-        console.log(4);
         rooms[index] = room;
         socket.join(roomId);
-        console.log(5);
         return response(true);
       }
       return response(false);
@@ -116,6 +113,9 @@ io.on('connection', function(socket){
     users = users.filter(({ id }) => id !== `user-${socket.id}`);
     rooms = rooms.filter(({ id }) => id !== `room-${socket.id}`);
     io.emit('users', users);
+    rooms.forEach(room => {
+      io.to(room.id).emit('room', room);
+    })
   });
 
   socket.on('get users', () => {
@@ -163,16 +163,12 @@ io.on('connection', function(socket){
 
   socket.on('join room', roomId => {
     const { result } = joinRoom(roomId);
-    console.log(1);
     if (result) {
-      console.log(2, result);
       io.to(roomId).emit('room', getRoom(roomId));
       io.to(roomId).emit('room users', getRoomUsers(roomId));
     } else {
-      console.log(3);
       socket.emit('room not exists');
     }
-    console.log(4);
     return result;
   })
 

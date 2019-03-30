@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Chat from './Chat';
 import UserList from './UserList';
+import Map from './components/Map';
 import socket from './lib/socket';
 
 const getReadyUsersIdList = room =>
@@ -12,6 +13,7 @@ const Room = ({ match, history }) => {
   const roomId = match.params.id;
 
   const receiveRoom = room => {
+    console.log(room);
     if (!room) {
       return history.push('/');
     }
@@ -40,6 +42,15 @@ const Room = ({ match, history }) => {
           title={`Chat pokoju: ${room.name}`}
           eventName="room chat message"
         />
+      </div>
+      <div>
+        {room && room.players && 
+          <div>
+            <Map
+              players={room.players}
+            />
+          </div>
+        }
       </div>
     </div>
   ) : null;
